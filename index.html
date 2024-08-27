@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-csv/1.0.40/jquery.csv.min.js" integrity="sha512-Y8iWYJDo6HiTo5xtml1g4QqHtl/PO1w+dmUpQfQSOTqKNsMhExfyPN2ncNAe9JuJUSKzwK/b6oaNPop4MXzkwg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.6/css/bootstrap.css">
+</head>
+<body>
+<div class="container">
+<form id="form">
+    <div class="form-group">
+        <label for="name">請輸入 Hackfoldr 網址</label>
+        <input type="text" class="form-control" name="url">
+    </div>
+    <button type="submit" class="btn btn-default">Submit</button>
+</form>
+<hr>
+<textarea id="output" class="form-control" rows="10"></textarea>
+</div>
+<script>
+$('#form').submit(function(e){
+    e.preventDefault();
+    var url = $(this).find('input[name="url"]').val();
+    // get gov-hackath62n from https://beta.hackfoldr.org/g0v-hackath62n
+    var hackfoldr = url.split('/').pop();
+    // csv url = https://ethercalc-cache.g0v.tw/_/g0v-hackath62n/csv
+    var csv_url = 'https://ethercalc-cache.g0v.tw/_/' + hackfoldr + '/csv';
+    var message = '';
+    $.get(csv_url, function(data){
+        let records = $.csv.toObjects(data);
+        records = records.filter((record) => {
+            if (record['#url']) {
+                return true;
+            }
+            if (record['#title']) {
+                return true;
+            }
+            return false;
+        });
+
+        // 第一個是 title
+        message += '# ' + records.shift()['#title'] + '\n';
+
+        for (let record of records) {
+            if (record['#url']) {
+                title = record['#title'];
+                if (record['#tag']) {
+                    if (record['#tag'].match(':[a-z]+$')) {
+                        record['#tag'] = record['#tag'].replace(/:[a-z]+$/, '');
+                    }
+                    title += ' `' + record['#tag'] + '`';
+                }
+                message += '- [' + title + '](' + record['#url'] + ')';
+                message += '\n';
+            } else {
+                message += '\n';
+                message += record['#title'] + '\n';
+                message += '---\n';
+            }
+        }
+        $('#output').val(message);
+    });
+
+});
+</script>
+</body>
+</html>
