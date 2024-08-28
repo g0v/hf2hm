@@ -29,34 +29,35 @@ $('#form').submit(function(e){
     var csv_url = 'https://ethercalc-cache.g0v.tw/_/' + hackfoldr + '/csv';
     var message = '';
     $.get(csv_url, function(data){
-        let records = $.csv.toObjects(data);
+        let records = $.csv.toArrays(data);
+        records.shift();
         records = records.filter((record) => {
-            if (record['#url']) {
+            if (record[0]) {
                 return true;
             }
-            if (record['#title']) {
+            if (record[1]) {
                 return true;
             }
             return false;
         });
 
         // 第一個是 title
-        message += '# ' + records.shift()['#title'] + '\n';
+        message += '# ' + records.shift()[1] + '\n';
 
         for (let record of records) {
-            if (record['#url']) {
-                title = record['#title'];
-                if (record['#tag']) {
-                    if (record['#tag'].match(':[a-z]+$')) {
-                        record['#tag'] = record['#tag'].replace(/:[a-z]+$/, '');
+            if (record[0]) {
+                title = record[1];
+                if (record[2]) {
+                    if (record[2].match(':[a-z]+$')) {
+                        record[2] = record[2].replace(/:[a-z]+$/, '');
                     }
-                    title += ' `' + record['#tag'] + '`';
+                    title += ' `' + record[2] + '`';
                 }
-                message += '- [' + title + '](' + record['#url'] + ')';
+                message += '- [' + title + '](' + record[0] + ')';
                 message += '\n';
             } else {
                 message += '\n';
-                message += record['#title'] + '\n';
+                message += record[1] + '\n';
                 message += '---\n';
             }
         }
