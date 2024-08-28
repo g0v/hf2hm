@@ -24,7 +24,7 @@ $('#form').submit(function(e){
     e.preventDefault();
     var url = $(this).find('input[name="url"]').val();
     // get gov-hackath62n from https://beta.hackfoldr.org/g0v-hackath62n
-    var hackfoldr = url.split('/').pop();
+    var hackfoldr = url.split('/')[3];
     // csv url = https://ethercalc-cache.g0v.tw/_/g0v-hackath62n/csv
     var csv_url = 'https://ethercalc-cache.g0v.tw/_/' + hackfoldr + '/csv';
     var message = '';
